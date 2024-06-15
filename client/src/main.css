@@ -1,0 +1,97 @@
+@font-face {
+  font-family: Poppins;
+  src: url("./fonts/Poppins/Poppins-Regular.ttf");
+}
+@font-face {
+  font-family: Stylish;
+  src: url("./fonts/Stylish/Stylish-Regular.ttf");
+}
+@font-face {
+  font-family: NewRocker;
+  src: url("./fonts/NewRocker/NewRocker-Regular.ttf");
+}
+@font-face {
+  font-family: AvertaStd;
+  src: url("./fonts/AvertaStd/FontsFree-Net-AvertaStandard-Regular.ttf");
+}
+.averta {
+  font-family: "AvertaStd";
+}
+.poppins {
+  font-family: "Poppins";
+}
+.stylish {
+  font-family: "Stylish";
+}
+.newrocker {
+  font-family: "NewRocker";
+}
+body {
+  background: rgb(244, 244, 244);
+  font-family: "AvertaStd";
+}
+.qbtn {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: white;
+
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  transition: all 0.2s;
+  font-size: 100%;
+}
+.bg-db {
+  background-color: #2b345f;
+}
+.qbtn-db {
+  background-color: #2b345f;
+}
+.qbtn-wh {
+  background-color: #ffff;
+}
+.qbtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 2px 2px 2px rgb(215, 215, 215);
+}
+.background-image {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  align-content: center;
+  opacity: 0.8;
+}
+.welcome-page {
+  backdrop-filter: blur(90px);
+}
+.hover {
+  transition: all 0.2s;
+}
+.hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 1px 1px 3px 1px rgb(160, 160, 160);
+  cursor: pointer;
+}
+.design-box {
+  background-image: url("./images/design_bg.svg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
