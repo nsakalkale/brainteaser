@@ -35,6 +35,10 @@ connectToMongoDB();
 
 // Routes
 
+app.post("/", (req, res) => {
+  return "HI";
+});
+
 // LOGIN
 app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
