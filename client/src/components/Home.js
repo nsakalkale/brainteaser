@@ -35,10 +35,12 @@ export default function Home() {
             </h4>
             <br />
             <div className="d-flex justify-content-center">
-              <Link to="/dashboard">
+              <Link to="/login">
                 <button className="qbtn qbtn-db me-3">Login</button>
               </Link>
-              <button className="qbtn qbtn-db">SignUp</button>
+              <Link to="/signup">
+                <button className="qbtn qbtn-db">SignUp</button>
+              </Link>
             </div>
           </center>
         </div>

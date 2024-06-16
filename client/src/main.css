@@ -95,3 +95,19 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.qinput {
+  width: 100%;
+  border: 2px solid #d3d3d3;
+  padding: 5px 10px;
+  outline: none;
+  transition: 0.3s all;
+}
+.qinput:active {
+  border: 2px solid #2b345f;
+  border-style: dashed;
+}
+.qinput:focus {
+  border: 2px solid #2b345f;
+  border-style: dashed;
+}
