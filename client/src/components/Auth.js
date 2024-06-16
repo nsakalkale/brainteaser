@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 import logo from "../images/logo.svg";
 
+//LOGIN
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
