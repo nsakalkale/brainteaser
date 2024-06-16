@@ -16,7 +16,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8080/api/login", {
+      const response = await axios.post(process.env.REACT_APP_LOGIN, {
         email,
         password,
       });
@@ -83,10 +83,7 @@ const Signup = () => {
     e.preventDefault();
     try {
       console.log(formData);
-      const response = await axios.post(
-        "http://localhost:8080/api/signup",
-        formData
-      );
+      const response = await axios.post(process.env.REACT_APP_SIGNUP, formData);
       setMessage(JSON.stringify(response.data.message));
     } catch (error) {
       setMessage(JSON.stringify(error.response.data.message));

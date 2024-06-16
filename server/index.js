@@ -3,12 +3,12 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 const app = express();
+require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
 
-const uri =
-  "mongodb+srv://nsakalkale:nimishsakal@brainteaser.zocxdee.mongodb.net/?retryWrites=true&w=majority&appName=BrainTeaser";
+const uri = process.env.MONGODB;
 
 const client = new MongoClient(uri, {
   serverApi: {
