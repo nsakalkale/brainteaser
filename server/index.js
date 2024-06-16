@@ -36,6 +36,7 @@ connectToMongoDB();
 // Routes
 
 app.post("/", (req, res) => {
+  console.log("HI");
   return "HI";
 });
 
