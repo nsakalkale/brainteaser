@@ -34,7 +34,7 @@ const Quiz = () => {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
-  const [timeRemaining, setTimeRemaining] = useState(duration * 6);
+  const [timeRemaining, setTimeRemaining] = useState(60);
   const [sessionActive, setSessionActive] = useState(false);
   const [quizState, setQuizState] = useState(
     Array(questions.length).fill(null)
@@ -71,7 +71,7 @@ const Quiz = () => {
         setTimeRemaining((prev) => {
           if (prev === 0) {
             handleNextQuestion(true);
-            return duration * 60;
+            return 60;
           } else {
             return prev - 1;
           }
@@ -80,7 +80,7 @@ const Quiz = () => {
 
       return () => clearInterval(timer);
     }
-  }, [sessionActive, currentQuestion, duration]);
+  }, [sessionActive, currentQuestion]);
 
   const handleStartQuiz = () => {
     setSessionActive(true);
@@ -91,7 +91,7 @@ const Quiz = () => {
   };
 
   const handleNextQuestion = (missed = false) => {
-    if (selectedOption === "") {
+    if (selectedOption === "" && !missed) {
       const confirmMove = window.confirm(
         "You haven't selected an option. Are you sure you want to proceed to the next question?"
       );
@@ -125,7 +125,7 @@ const Quiz = () => {
       handleSubmit();
     } else {
       setCurrentQuestion((prevQuestion) => prevQuestion + 1);
-      setTimeRemaining(duration * 60); // Reset timer for the next question
+      setTimeRemaining(60); // Reset timer for the next question
     }
   };
 
@@ -209,64 +209,69 @@ const Quiz = () => {
           </div>
         )}
         {sessionActive && (
-          <div className="mt-3">
-            <div className="mb-3">
-              <p>
-                Time Remaining:{" "}
-                {`${
-                  Math.floor(timeRemaining / 60) < 10
-                    ? "0" + Math.floor(timeRemaining / 60)
-                    : Math.floor(timeRemaining / 60)
-                }:${
-                  timeRemaining % 60 < 10
-                    ? "0" + (timeRemaining % 60)
-                    : timeRemaining % 60
-                }`}
-              </p>
+          <div className="d-flex justify-content-center align-items-center">
+            <div className="w-100">
+              <div className="mb-3">
+                <p>
+                  Time Remaining:{" "}
+                  {`${
+                    Math.floor(timeRemaining / 60) < 10
+                      ? "0" + Math.floor(timeRemaining / 60)
+                      : Math.floor(timeRemaining / 60)
+                  }:${
+                    timeRemaining % 60 < 10
+                      ? "0" + (timeRemaining % 60)
+                      : timeRemaining % 60
+                  }`}
+                </p>
+              </div>
+              <div className="">
+                <div className="bg-white p-4 rounded border">
+                  <h5>
+                    {currentQuestion + 1}. {questions[currentQuestion].question}
+                  </h5>
+                </div>
+                <form className="bg-white p-4 rounded border">
+                  {questions[currentQuestion].options.map((option, index) => (
+                    <div key={index} className="form-check">
+                      <input
+                        className="form-check-input"
+                        type="radio"
+                        name="option"
+                        id={`option${index}`}
+                        value={option}
+                        onChange={handleOptionChange}
+                        checked={selectedOption === option}
+                      />
+                      <label
+                        className="form-check-label"
+                        htmlFor={`option${index}`}
+                      >
+                        {option}
+                      </label>
+                    </div>
+                  ))}
+                </form>
+              </div>
+              {currentQuestion < questions.length - 1 && (
+                <button
+                  className="btn btn-primary mt-3 me-2"
+                  onClick={handleNextQuestion}
+                  disabled={selectedOption === ""}
+                >
+                  Next
+                </button>
+              )}
+              {currentQuestion === questions.length - 1 && (
+                <button
+                  className="btn btn-primary mt-3 ms-2"
+                  onClick={handleSubmit}
+                  disabled={selectedOption === ""}
+                >
+                  Submit Quiz
+                </button>
+              )}
             </div>
-            <div>
-              <h5>{questions[currentQuestion].question}</h5>
-              <form>
-                {questions[currentQuestion].options.map((option, index) => (
-                  <div key={index} className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="option"
-                      id={`option${index}`}
-                      value={option}
-                      onChange={handleOptionChange}
-                      checked={selectedOption === option}
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor={`option${index}`}
-                    >
-                      {option}
-                    </label>
-                  </div>
-                ))}
-              </form>
-            </div>
-            <button
-              className="btn btn-primary mt-3 me-2"
-              onClick={handleNextQuestion}
-              disabled={
-                selectedOption === "" ||
-                currentQuestion === questions.length - 1
-              }
-            >
-              Next
-            </button>
-            {currentQuestion === questions.length - 1 && (
-              <button
-                className="btn btn-primary mt-3 ms-2"
-                onClick={handleSubmit}
-                disabled={selectedOption === ""}
-              >
-                Submit Quiz
-              </button>
-            )}
           </div>
         )}
         {showSummary && (

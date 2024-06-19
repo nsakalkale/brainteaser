@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   useNavigate,
+  useLocation,
 } from "react-router-dom";
 import logo from "../images/logo.svg";
 
@@ -14,9 +15,27 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Email is invalid";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length > 8) {
+      newErrors.password = "Password cannot be more than 8 characters";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
       const response = await axios.post(process.env.REACT_APP_LOGIN, {
         email,
@@ -29,41 +48,60 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">
-            Email:
-          </label>
-          <input
-            autoComplete="off"
-            type="email"
-            id="email"
-            className="qinput"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
+    <>
+      <title>LogIn</title>
+      <div className="d-flex justify-content-center align-items-center mt-5">
+        <div className="p-4 bg-white border rounded col-md-4">
+          <center>
+            <img src={logo} width={50} alt="Logo" />
+            <h1>
+              <b>LogIn</b>
+            </h1>
+          </center>
+          <br />
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label">
+                Email:
+              </label>
+              <input
+                autoComplete="off"
+                type="email"
+                id="email"
+                className={`qinput ${errors.email && "is-invalid"}`}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              {errors.email && (
+                <div className="invalid-feedback">{errors.email}</div>
+              )}
+            </div>
+            <div className="mb-3">
+              <label htmlFor="password" className="form-label">
+                Password:
+              </label>
+              <input
+                autoComplete="off"
+                type="password"
+                id="password"
+                className={`qinput ${errors.password && "is-invalid"}`}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              {errors.password && (
+                <div className="invalid-feedback">{errors.password}</div>
+              )}
+            </div>
+            <center>
+              <button type="submit" className="qbtn qbtn-db">
+                Login
+              </button>
+            </center>
+          </form>
+          {message && <div className="mt-3 alert alert-info">{message}</div>}
         </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">
-            Password:
-          </label>
-          <input
-            autoComplete="off"
-            type="password"
-            id="password"
-            className="qinput"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Login
-        </button>
-      </form>
-      {message && <div className="mt-3 alert alert-info">{message}</div>}
-    </div>
+      </div>
+    </>
   );
 };
 
@@ -76,15 +114,41 @@ const Signup = () => {
     password: "",
   });
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.regno) {
+      newErrors.regno = "Registration Number is required";
+    }
+    if (!formData.fname) {
+      newErrors.fname = "First Name is required";
+    }
+    if (!formData.lname) {
+      newErrors.lname = "Last Name is required";
+    }
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length > 8) {
+      newErrors.password = "Password cannot be more than 8 characters";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     try {
-      console.log(formData);
       const response = await axios.post(process.env.REACT_APP_SIGNUP, formData);
       setMessage(JSON.stringify(response.data.message));
     } catch (error) {
@@ -94,6 +158,7 @@ const Signup = () => {
 
   return (
     <>
+      <title>Sign Up</title>
       <div className="container-fluid">
         <div className="d-flex justify-content-center align-items-center">
           <form
@@ -116,10 +181,13 @@ const Signup = () => {
                 type="text"
                 id="regno"
                 name="regno"
-                className="qinput"
+                className={`qinput ${errors.regno && "is-invalid"}`}
                 value={formData.regno}
                 onChange={handleChange}
               />
+              {errors.regno && (
+                <div className="invalid-feedback">{errors.regno}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="fname" className="form-label">
@@ -130,10 +198,13 @@ const Signup = () => {
                 type="text"
                 id="fname"
                 name="fname"
-                className="qinput"
+                className={`qinput ${errors.fname && "is-invalid"}`}
                 value={formData.fname}
                 onChange={handleChange}
               />
+              {errors.fname && (
+                <div className="invalid-feedback">{errors.fname}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="lname" className="form-label">
@@ -144,10 +215,13 @@ const Signup = () => {
                 type="text"
                 id="lname"
                 name="lname"
-                className="qinput"
+                className={`qinput ${errors.lname && "is-invalid"}`}
                 value={formData.lname}
                 onChange={handleChange}
               />
+              {errors.lname && (
+                <div className="invalid-feedback">{errors.lname}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
@@ -158,10 +232,13 @@ const Signup = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="qinput"
+                className={`qinput ${errors.email && "is-invalid"}`}
                 value={formData.email}
                 onChange={handleChange}
               />
+              {errors.email && (
+                <div className="invalid-feedback">{errors.email}</div>
+              )}
             </div>
             <div className="mb-3">
               <label htmlFor="password" className="form-label">
@@ -172,10 +249,13 @@ const Signup = () => {
                 type="password"
                 id="password"
                 name="password"
-                className="qinput"
+                className={`qinput ${errors.password && "is-invalid"}`}
                 value={formData.password}
                 onChange={handleChange}
               />
+              {errors.password && (
+                <div className="invalid-feedback">{errors.password}</div>
+              )}
             </div>
             <center>
               <button type="submit" className="qbtn qbtn-db">
@@ -191,7 +271,9 @@ const Signup = () => {
 };
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const path = location.pathname;
+  const [isLogin, setIsLogin] = useState(path === "/login" ? true : false);
   const navigate = useNavigate();
 
   const toggleAuthMode = () => {
