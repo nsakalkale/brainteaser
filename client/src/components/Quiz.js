@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Quiz = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const {
     duration = 10,
     negativeMarking = 0,
@@ -44,6 +46,8 @@ const Quiz = () => {
     Array(questions.length).fill("notAttempted")
   );
   const [showSummary, setShowSummary] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(5);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -57,7 +61,7 @@ const Quiz = () => {
     const sessionTimer = setTimeout(() => {
       setSessionActive(false);
       alert("Session ended. Please start again to attempt the quiz.");
-    }, duration * 60 * 1000); // Session duration
+    }, duration * 60 * 1000);
 
     return () => {
       clearTimeout(sessionTimer);
@@ -82,6 +86,23 @@ const Quiz = () => {
     }
   }, [sessionActive, currentQuestion]);
 
+  useEffect(() => {
+    if (showResult) {
+      const countdownTimer = setInterval(() => {
+        setRedirectCountdown((prev) => {
+          if (prev === 0) {
+            clearInterval(countdownTimer);
+            navigate(-1);
+          } else {
+            return prev - 1;
+          }
+        });
+      }, 1000);
+
+      return () => clearInterval(countdownTimer);
+    }
+  }, [showResult, navigate]);
+
   const handleStartQuiz = () => {
     setSessionActive(true);
   };
@@ -91,7 +112,7 @@ const Quiz = () => {
   };
 
   const handleNextQuestion = (missed = false) => {
-    if (selectedOption === "" && !missed) {
+    if (negativeMarking && selectedOption === "" && !missed) {
       const confirmMove = window.confirm(
         "You haven't selected an option. Are you sure you want to proceed to the next question?"
       );
@@ -129,6 +150,10 @@ const Quiz = () => {
     }
   };
 
+  const handleClearSelection = () => {
+    setSelectedOption("");
+  };
+
   const handleSubmit = () => {
     const correctAnswer = questions[currentQuestion].answer;
     const isCorrect = selectedOption === correctAnswer;
@@ -157,11 +182,31 @@ const Quiz = () => {
     setShowSummary(true);
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
+    const attempted = questionStatus.filter(
+      (status) => status === "attempted"
+    ).length;
+    const missed = questionStatus.filter(
+      (status) => status === "missed"
+    ).length;
+
+    const result = {
+      quizState,
+      score,
+      attempted,
+      missed,
+    };
+
+    try {
+      await axios.post("http://localhost:8080/api/quizresult", result);
+      alert("Quiz submitted successfully. Session ended.");
+    } catch (error) {
+      console.error("Error submitting quiz results:", error);
+      alert("Failed to submit quiz results. Please try again.");
+    }
+
     setShowSummary(false);
-    console.log("Quiz State:", quizState);
-    console.log("Total Score:", score);
-    alert("Quiz submitted successfully. Session ended.");
+    setShowResult(true);
   };
 
   const instructions = [
@@ -182,8 +227,9 @@ const Quiz = () => {
 
   return (
     <>
+      <title>Quiz</title>
       <div className="container">
-        {!sessionActive && !showSummary && (
+        {!sessionActive && !showSummary && !showResult && (
           <div className="d-flex justify-content-center align-items-center">
             <div className="bg-white rounded border p-4 mt-3 col-md-6">
               <div className="">
@@ -252,50 +298,94 @@ const Quiz = () => {
                     </div>
                   ))}
                 </form>
+                <div className="d-flex justify-content-between mt-3">
+                  <button
+                    className="qbtn qbtn-db"
+                    onClick={handleClearSelection}
+                  >
+                    Clear All Options
+                  </button>
+                  <button
+                    className="qbtn qbtn-db"
+                    onClick={() => handleNextQuestion(false)}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
-              {currentQuestion < questions.length - 1 && (
-                <button
-                  className="btn btn-primary mt-3 me-2"
-                  onClick={handleNextQuestion}
-                  disabled={selectedOption === ""}
-                >
-                  Next
-                </button>
-              )}
-              {currentQuestion === questions.length - 1 && (
-                <button
-                  className="btn btn-primary mt-3 ms-2"
-                  onClick={handleSubmit}
-                  disabled={selectedOption === ""}
-                >
-                  Submit Quiz
-                </button>
-              )}
             </div>
           </div>
         )}
         {showSummary && (
-          <div className="mt-3">
-            <h3>Quiz Summary</h3>
-            <p>Total Score: {score}</p>
-            <div>
-              {quizState.map((question, index) => (
-                <div key={index}>
-                  <p>
-                    Question {index + 1}: {question.question}
-                  </p>
-                  <p>Your Answer: {question.selectedOption}</p>
-                  <p>Correct Answer: {question.correctAnswer}</p>
-                  <p>Marks: {question.marks}</p>
-                </div>
-              ))}
+          <div className="d-flex justify-content-center align-items-center">
+            <div className="bg-white rounded border p-4 mt-3 col-md-6">
+              <div className="">
+                <center>
+                  {" "}
+                  <h3>
+                    <b>Quiz Summary</b>
+                  </h3>
+                  <hr />
+                </center>
+                <p>
+                  <b>Total Score:</b> {score}
+                </p>
+                <p>
+                  <b>Attempted Questions:</b>{" "}
+                  {quizState.filter((q) => q).length}
+                </p>
+                <p>
+                  <b>Missed Questions:</b> {quizState.filter((q) => !q).length}
+                </p>
+                <center>
+                  <button
+                    className="qbtn qbtn-db mt-3"
+                    onClick={handleFinalSubmit}
+                  >
+                    Submit Quiz
+                  </button>
+                </center>
+              </div>
             </div>
-            <button
-              className="btn btn-primary mt-3"
-              onClick={handleFinalSubmit}
-            >
-              Final Submit
-            </button>
+          </div>
+        )}
+        {showResult && (
+          <div className="d-flex justify-content-center align-items-center">
+            <div className="bg-white rounded border p-4 mt-3 col-md-6">
+              <div className="">
+                <center>
+                  {" "}
+                  <h3>
+                    <b>Result</b>
+                  </h3>
+                  <hr />
+                </center>
+                <ul>
+                  {quizState.map((q, index) => (
+                    <li key={index}>
+                      {q ? (
+                        <>
+                          <b>Question:</b> {q.question} <br />
+                          <b>Your Answer:</b> {q.selectedOption} <br />
+                          <b>Correct Answer:</b> {q.correctAnswer} <br />
+                          <b>Marks:</b> {q.marks}
+                        </>
+                      ) : (
+                        "Question not attempted."
+                      )}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-3">
+                  <p>
+                    Redirecting to dashboard in {redirectCountdown} seconds...
+                  </p>
+                  <button className="qbtn qbtn-db" onClick={() => navigate(-1)}>
+                    Go to Dashboard
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
